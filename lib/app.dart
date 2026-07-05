@@ -13,7 +13,7 @@ class AsmrApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ASMR App',
+      title: 'Shell Music Player',
       theme: ThemeData(
         colorSchemeSeed: Colors.deepPurple,
         brightness: Brightness.dark,
@@ -46,10 +46,17 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      // We use a Stack here so the MiniPlayer floats above the navigation bar
+      // and doesn't get covered by the bottom navigation bar or sub-screens.
+      body: Stack(
         children: [
-          Expanded(child: _screens[_currentIndex]),
-          const MiniPlayer(),
+          _screens[_currentIndex],
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: MiniPlayer(),
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

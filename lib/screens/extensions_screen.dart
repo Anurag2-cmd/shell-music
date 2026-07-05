@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import '../models/source.dart';
 import '../services/extension_manager.dart';
 
@@ -34,15 +34,18 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
 
   Future<void> _installNewExtension() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['py'],
+      const XTypeGroup typeGroup = XTypeGroup(
+        label: 'Python files',
+        extensions: <String>['py'],
       );
+      final XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[
+        typeGroup,
+      ]);
 
-      if (result != null && result.files.single.path != null) {
+      if (file != null) {
         setState(() => _loading = true);
-        final file = File(result.files.single.path!);
-        await _extMgr.installExtension(file);
+        final File localFile = File(file.path);
+        await _extMgr.installExtension(localFile);
         await _init();
         
         if (mounted) {
@@ -68,6 +71,12 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
       appBar: AppBar(
         title: const Text('Sources'),
         actions: [
+          // Moved the "Add" button here to guarantee visibility
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, size: 28),
+            onPressed: _installNewExtension,
+            tooltip: 'Add Extension (.py)',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () async {
@@ -82,7 +91,7 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
           : _sources.isEmpty
               ? const Center(
                   child: Text(
-                    'No extensions installed.\nTap "+" to add a .py file.',
+                    'No extensions installed.\nTap the "+" icon in the top right.',
                     textAlign: TextAlign.center,
                   ),
                 )
@@ -100,21 +109,12 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
                         subtitle: Text(
                           'v${s.version}${s.lang != null ? ' · ${s.lang}' : ''}${s.description != null ? '\n${s.description}' : ''}',
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.info_outline),
-                          onPressed: () {
-                            // Show details or settings
-                          },
-                        ),
+                        trailing: const Icon(Icons.check_circle, color: Colors.green, size: 16),
                         isThreeLine: s.description != null,
                       ),
                     );
                   },
                 ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _installNewExtension,
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

@@ -108,22 +108,22 @@ class MediaEntry extends HiveObject {
       };
 
   factory MediaEntry.fromJson(Map<String, dynamic> json) => MediaEntry(
-        id: json['id'] as String,
-        title: json['title'] as String,
-        sourceId: json['source_id'] as String,
-        url: json['url'] as String,
-        coverUrl: json['cover_url'] as String?,
-        artist: json['artist'] as String?,
-        tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
-        duration: json['duration'] as String?,
-        description: json['description'] as String?,
-        fileSize: json['file_size'] as int?,
-        audioUrl: json['audio_url'] as String?,
-        language: json['language'] as String?,
-        isDownloaded: json['is_downloaded'] as bool? ?? false,
+        id: (json['id'] ?? '').toString(),
+        title: (json['title'] ?? 'Unknown').toString(),
+        sourceId: (json['source_id'] ?? '').toString(),
+        url: (json['url'] ?? '').toString(),
+        coverUrl: json['cover_url']?.toString(),
+        artist: json['artist']?.toString(),
+        tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        duration: json['duration']?.toString(),
+        description: json['description']?.toString(),
+        fileSize: (json['file_size'] as num?)?.toInt(),
+        audioUrl: json['audio_url']?.toString(),
+        language: json['language']?.toString(),
+        isDownloaded: json['is_downloaded'] == true,
         dateAdded: json['date_added'] != null
-            ? DateTime.parse(json['date_added'] as String)
+            ? DateTime.tryParse(json['date_added'].toString())
             : null,
-        videoUrl: json['video_url'] as String?,
+        videoUrl: json['video_url']?.toString(),
       );
 }

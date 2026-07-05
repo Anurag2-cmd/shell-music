@@ -47,37 +47,37 @@ class PythonBridgePlugin : FlutterPlugin, MethodCallHandler {
                     result.success(parseJsonList(json))
                 }
                 "search" -> {
-                    val args = call.arguments as Map<String, Any>
+                    val args = call.arguments as Map<*, *>
                     val json = bridge.callAttr(
-                        "search", args["source_id"], args["query"], args["page"]
+                        "search", args["source_id"]?.toString(), args["query"]?.toString(), args["page"]
                     ).toString()
                     result.success(parseJsonList(json))
                 }
                 "get_popular" -> {
-                    val args = call.arguments as Map<String, Any>
+                    val args = call.arguments as Map<*, *>
                     val json = bridge.callAttr(
-                        "get_popular", args["source_id"], args["page"]
+                        "get_popular", args["source_id"]?.toString(), args["page"]
                     ).toString()
                     result.success(parseJsonList(json))
                 }
                 "get_latest" -> {
-                    val args = call.arguments as Map<String, Any>
+                    val args = call.arguments as Map<*, *>
                     val json = bridge.callAttr(
-                        "get_latest", args["source_id"], args["page"]
+                        "get_latest", args["source_id"]?.toString(), args["page"]
                     ).toString()
                     result.success(parseJsonList(json))
                 }
                 "get_audio_details" -> {
-                    val args = call.arguments as Map<String, Any>
+                    val args = call.arguments as Map<*, *>
                     val json = bridge.callAttr(
-                        "get_audio_details", args["source_id"], args["url"]
+                        "get_audio_details", args["source_id"]?.toString(), args["url"]?.toString()
                     ).toString()
                     result.success(parseJsonMap(json))
                 }
                 "get_download_urls" -> {
-                    val args = call.arguments as Map<String, Any>
+                    val args = call.arguments as Map<*, *>
                     val json = bridge.callAttr(
-                        "get_download_urls", args["source_id"], args["url"]
+                        "get_download_urls", args["source_id"]?.toString(), args["url"]?.toString()
                     ).toString()
                     result.success(parseJsonList(json))
                 }

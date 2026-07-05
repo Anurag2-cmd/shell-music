@@ -1,0 +1,69 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+apply plugin: "com.chaquo.python"
+
+android {
+    namespace "com.shell.musicplayer"
+    compileSdk 36
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    defaultConfig {
+        applicationId "com.shell.musicplayer"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.1.0"
+
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
+        }
+
+        packagingOptions {
+            jniLibs {
+                useLegacyPackaging = true
+            }
+        }
+
+        python {
+            pip {
+                install "requests"
+                install "beautifulsoup4"
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            python {
+                srcDirs = ["src/main/python", "../../python_extensions"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source "../.."
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.24"
+    implementation "com.google.code.gson:gson:2.10.1"
+}

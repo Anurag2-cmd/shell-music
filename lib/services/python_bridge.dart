@@ -12,31 +12,44 @@ class PythonBridge {
   bool _initialized = false;
   bool _pythonAvailable = false;
 
-  Future<void> initialize() async {
-    if (_initialized) return;
+  Future<dynamic> initialize() async {
+    if (_initialized) return null;
     try {
-      await _channel.invokeMethod('initialize');
+      final result = await _channel.invokeMethod('initialize');
       _pythonAvailable = true;
+      _initialized = true;
+      return result;
     } catch (_) {
       _pythonAvailable = false;
+      _initialized = true;
+      return null;
     }
-    _initialized = true;
   }
 
   bool get isAvailable => _pythonAvailable;
+
+  List<Map<String, dynamic>> _convertList(dynamic result) {
+    if (result == null) return [];
+    return (result as List<dynamic>).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  Map<String, dynamic> _convertMap(dynamic result) {
+    if (result == null) return {};
+    return Map<String, dynamic>.from(result as Map);
+  }
 
   Future<List<Map<String, dynamic>>> _call(
       String method, Map<String, dynamic> args) async {
     if (!_pythonAvailable) throw UnsupportedError('Python not available');
     final result = await _channel.invokeMethod(method, args);
-    return (result as List<dynamic>).cast<Map<String, dynamic>>();
+    return _convertList(result);
   }
 
   Future<Map<String, dynamic>> _callMap(
       String method, Map<String, dynamic> args) async {
     if (!_pythonAvailable) throw UnsupportedError('Python not available');
     final result = await _channel.invokeMethod(method, args);
-    return result as Map<String, dynamic>;
+    return _convertMap(result);
   }
 
   Future<List<Map<String, dynamic>>> getInstalledExtensions() async {
@@ -54,7 +67,7 @@ class PythonBridge {
       ];
     }
     final result = await _channel.invokeMethod('get_installed_extensions');
-    return (result as List<dynamic>).cast<Map<String, dynamic>>();
+    return _convertList(result);
   }
 
   Future<List<Map<String, dynamic>>> search({
