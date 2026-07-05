@@ -8,7 +8,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await Hive.initFlutter();
-  Hive.registerAdapter(AudioEntryAdapter());
+  Hive.registerAdapter(MediaEntryAdapter()); // Updated to the new adapter
   await FavoritesService().initialize();
 
   runApp(const AsmrApp());

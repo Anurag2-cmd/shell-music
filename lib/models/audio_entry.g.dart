@@ -6,17 +6,17 @@ part of 'audio_entry.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class AudioEntryAdapter extends TypeAdapter<AudioEntry> {
+class MediaEntryAdapter extends TypeAdapter<MediaEntry> {
   @override
   final int typeId = 0;
 
   @override
-  AudioEntry read(BinaryReader reader) {
+  MediaEntry read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return AudioEntry(
+    return MediaEntry(
       id: fields[0] as String,
       title: fields[1] as String,
       sourceId: fields[2] as String,
@@ -31,13 +31,14 @@ class AudioEntryAdapter extends TypeAdapter<AudioEntry> {
       language: fields[11] as String?,
       isDownloaded: fields[12] as bool,
       dateAdded: fields[13] as DateTime?,
+      videoUrl: fields[14] as String?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, AudioEntry obj) {
+  void write(BinaryWriter writer, MediaEntry obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -65,7 +66,9 @@ class AudioEntryAdapter extends TypeAdapter<AudioEntry> {
       ..writeByte(12)
       ..write(obj.isDownloaded)
       ..writeByte(13)
-      ..write(obj.dateAdded);
+      ..write(obj.dateAdded)
+      ..writeByte(14)
+      ..write(obj.videoUrl);
   }
 
   @override
@@ -74,7 +77,7 @@ class AudioEntryAdapter extends TypeAdapter<AudioEntry> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AudioEntryAdapter &&
+      other is MediaEntryAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

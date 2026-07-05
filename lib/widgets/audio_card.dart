@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/audio_entry.dart';
 import '../services/extension_manager.dart';
-import '../services/python_bridge.dart';
 import '../services/playback_service.dart';
 
 class AudioCard extends StatefulWidget {
-  final AudioEntry entry;
+  final MediaEntry entry;
   final VoidCallback? onTap;
 
   const AudioCard({

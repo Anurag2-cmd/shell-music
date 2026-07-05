@@ -6,9 +6,10 @@ import '../services/python_bridge.dart';
 import '../services/favorites_service.dart';
 import '../services/playback_service.dart';
 import 'player_screen.dart';
+import 'video_player_screen.dart';
 
 class AudioDetailScreen extends StatefulWidget {
-  final AudioEntry entry;
+  final MediaEntry entry;
   const AudioDetailScreen({super.key, required this.entry});
 
   @override
@@ -18,7 +19,7 @@ class AudioDetailScreen extends StatefulWidget {
 class _AudioDetailScreenState extends State<AudioDetailScreen> {
   final _extMgr = ExtensionManager();
   final _favService = FavoritesService();
-  AudioEntry? _details;
+  MediaEntry? _details;
   bool _loading = true;
   List<Map<String, dynamic>> _downloadUrls = [];
 
@@ -57,7 +58,7 @@ class _AudioDetailScreenState extends State<AudioDetailScreen> {
       appBar: AppBar(
         title: Text(e.title, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
-          ValueListenableBuilder<Box<AudioEntry>>(
+          ValueListenableBuilder<Box<MediaEntry>>(
             valueListenable: _favService.listenable,
             builder: (context, box, _) {
               final isFav = _favService.isFavorite(e.id);
@@ -120,12 +121,38 @@ class _AudioDetailScreenState extends State<AudioDetailScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: () {
-                    PlaybackService().play(e);
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Play'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          PlaybackService().play(e);
+                        },
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Play Audio'),
+                      ),
+                    ),
+                    if (e.videoUrl != null) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => VideoPlayerScreen(
+                                  url: e.videoUrl!,
+                                  title: e.title,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.videocam),
+                          label: const Text('Watch Video'),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 12),
                 if (_downloadUrls.isNotEmpty) ...[

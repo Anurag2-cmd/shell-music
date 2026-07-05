@@ -8,13 +8,13 @@ class PlaybackService {
   PlaybackService._();
 
   final AudioPlayer _player = AudioPlayer();
-  final _currentEntrySubject = BehaviorSubject<AudioEntry?>();
+  final _currentEntrySubject = BehaviorSubject<MediaEntry?>();
 
   AudioPlayer get player => _player;
-  Stream<AudioEntry?> get currentEntryStream => _currentEntrySubject.stream;
-  AudioEntry? get currentEntry => _currentEntrySubject.valueOrNull;
+  Stream<MediaEntry?> get currentEntryStream => _currentEntrySubject.stream;
+  MediaEntry? get currentEntry => _currentEntrySubject.valueOrNull;
 
-  Future<void> play(AudioEntry entry) async {
+  Future<void> play(MediaEntry entry) async {
     // If it's already playing this exact entry, just return
     if (entry.id == currentEntry?.id && _player.playing) return;
 
@@ -41,6 +41,10 @@ class PlaybackService {
     } catch (e) {
       print('Error in PlaybackService.play: $e');
     }
+  }
+
+  Future<void> pause() async {
+    await _player.pause();
   }
 
   Future<void> togglePlay() async {

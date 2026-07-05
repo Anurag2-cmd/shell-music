@@ -1,4 +1,5 @@
-import 'dart:convert';
+import 'dart:io';
+import 'package:path/path.dart' as p;
 import '../models/source.dart';
 import '../models/audio_entry.dart';
 import '../models/extension_manifest.dart';
@@ -12,12 +13,16 @@ class ExtensionManager {
 
   List<Source> _sources = [];
   bool _initialized = false;
+  String? _userExtDir;
 
   ExtensionManager._(this._bridge);
 
   Future<void> initialize() async {
     if (_initialized) return;
-    await _bridge.initialize();
+    final userDir = await _bridge.initialize();
+    if (userDir is String) {
+      _userExtDir = userDir;
+    }
     await _loadSources();
     _initialized = true;
   }
@@ -47,7 +52,17 @@ class ExtensionManager {
     }).toList();
   }
 
-  Future<List<AudioEntry>> search({
+  Future<void> installExtension(File file) async {
+    if (_userExtDir == null) throw Exception('Extension directory not initialized');
+    
+    final destination = p.join(_userExtDir!, p.basename(file.path));
+    await file.copy(destination);
+    
+    // Force reload sources
+    await _loadSources();
+  }
+
+  Future<List<MediaEntry>> search({
     required String sourceId,
     required String query,
     int page = 1,
@@ -57,28 +72,28 @@ class ExtensionManager {
       query: query,
       page: page,
     );
-    return results.map((r) => AudioEntry.fromJson(r)).toList();
+    return results.map((r) => MediaEntry.fromJson(r)).toList();
   }
 
-  Future<List<AudioEntry>> getPopular({
+  Future<List<MediaEntry>> getPopular({
     required String sourceId,
     int page = 1,
   }) async {
     final results =
         await _bridge.getPopular(sourceId: sourceId, page: page);
-    return results.map((r) => AudioEntry.fromJson(r)).toList();
+    return results.map((r) => MediaEntry.fromJson(r)).toList();
   }
 
-  Future<List<AudioEntry>> getLatest({
+  Future<List<MediaEntry>> getLatest({
     required String sourceId,
     int page = 1,
   }) async {
     final results =
         await _bridge.getLatest(sourceId: sourceId, page: page);
-    return results.map((r) => AudioEntry.fromJson(r)).toList();
+    return results.map((r) => MediaEntry.fromJson(r)).toList();
   }
 
-  Future<AudioEntry> getAudioDetails({
+  Future<MediaEntry> getAudioDetails({
     required String sourceId,
     required String url,
   }) async {
@@ -86,7 +101,7 @@ class ExtensionManager {
       sourceId: sourceId,
       url: url,
     );
-    return AudioEntry.fromJson(result);
+    return MediaEntry.fromJson(result);
   }
 
   Future<List<Map<String, dynamic>>> getDownloadUrls({

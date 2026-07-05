@@ -4,23 +4,23 @@ import '../models/audio_entry.dart';
 
 class FavoritesService {
   static const String boxName = 'favorites';
-  late Box<AudioEntry> _box;
+  late Box<MediaEntry> _box;
 
   static final FavoritesService _instance = FavoritesService._();
   factory FavoritesService() => _instance;
   FavoritesService._();
 
   Future<void> initialize() async {
-    _box = await Hive.openBox<AudioEntry>(boxName);
+    _box = await Hive.openBox<MediaEntry>(boxName);
   }
 
-  ValueListenable<Box<AudioEntry>> get listenable => _box.listenable();
+  ValueListenable<Box<MediaEntry>> get listenable => _box.listenable();
 
-  List<AudioEntry> get favorites => _box.values.toList();
+  List<MediaEntry> get favorites => _box.values.toList();
 
   bool isFavorite(String id) => _box.containsKey(id);
 
-  Future<void> toggleFavorite(AudioEntry entry) async {
+  Future<void> toggleFavorite(MediaEntry entry) async {
     if (isFavorite(entry.id)) {
       await _box.delete(entry.id);
     } else {

@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 part 'audio_entry.g.dart';
 
 @HiveType(typeId: 0)
-class AudioEntry extends HiveObject {
+class MediaEntry extends HiveObject {
   @HiveField(0)
   final String id;
   @HiveField(1)
@@ -32,8 +32,10 @@ class AudioEntry extends HiveObject {
   final bool isDownloaded;
   @HiveField(13)
   final DateTime? dateAdded;
+  @HiveField(14)
+  final String? videoUrl;
 
-  AudioEntry({
+  MediaEntry({
     required this.id,
     required this.title,
     required this.sourceId,
@@ -48,9 +50,10 @@ class AudioEntry extends HiveObject {
     this.language,
     this.isDownloaded = false,
     this.dateAdded,
+    this.videoUrl,
   });
 
-  AudioEntry copyWith({
+  MediaEntry copyWith({
     String? id,
     String? title,
     String? sourceId,
@@ -65,8 +68,9 @@ class AudioEntry extends HiveObject {
     String? language,
     bool? isDownloaded,
     DateTime? dateAdded,
+    String? videoUrl,
   }) {
-    return AudioEntry(
+    return MediaEntry(
       id: id ?? this.id,
       title: title ?? this.title,
       sourceId: sourceId ?? this.sourceId,
@@ -81,6 +85,7 @@ class AudioEntry extends HiveObject {
       language: language ?? this.language,
       isDownloaded: isDownloaded ?? this.isDownloaded,
       dateAdded: dateAdded ?? this.dateAdded,
+      videoUrl: videoUrl ?? this.videoUrl,
     );
   }
 
@@ -99,9 +104,10 @@ class AudioEntry extends HiveObject {
         'language': language,
         'is_downloaded': isDownloaded,
         'date_added': dateAdded?.toIso8601String(),
+        'video_url': videoUrl,
       };
 
-  factory AudioEntry.fromJson(Map<String, dynamic> json) => AudioEntry(
+  factory MediaEntry.fromJson(Map<String, dynamic> json) => MediaEntry(
         id: json['id'] as String,
         title: json['title'] as String,
         sourceId: json['source_id'] as String,
@@ -118,5 +124,6 @@ class AudioEntry extends HiveObject {
         dateAdded: json['date_added'] != null
             ? DateTime.parse(json['date_added'] as String)
             : null,
+        videoUrl: json['video_url'] as String?,
       );
 }

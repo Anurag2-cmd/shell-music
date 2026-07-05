@@ -11,18 +11,36 @@ from typing import Any, Dict, List, Optional
 
 
 class ExtensionRegistry:
-    def __init__(self, extensions_dir: str):
-        self.extensions_dir = extensions_dir
+    """Registry for managing and invoking Python extensions."""
+
+    def __init__(self, asset_dir: str, user_dir: Optional[str] = None):
+        self.asset_dir = asset_dir
+        self.user_dir = user_dir
         self._extensions: Dict[str, Any] = {}
 
     def discover_extensions(self) -> List[Dict[str, str]]:
+        """Scan both asset and user directories for Python extension files."""
         manifests = []
-        if not os.path.isdir(self.extensions_dir):
-            return manifests
-        for fname in os.listdir(self.extensions_dir):
-            if fname.endswith(".py") and not fname.startswith("_"):
-                path = os.path.join(self.extensions_dir, fname)
-                mod = self._load_module(path, fname[:-3])
+
+        # Scan built-in assets
+        self._scan_dir(self.asset_dir, manifests)
+
+        # Scan user-uploaded directory if it exists
+        if self.user_dir and os.path.isdir(self.user_dir):
+            self._scan_dir(self.user_dir, manifests)
+
+        return manifests
+
+    def _scan_dir(self, directory: str, manifests: List[Dict]):
+        if not os.path.isdir(directory):
+            return
+
+        for fname in os.listdir(directory):
+            if fname.endswith(".py") and not fname.startswith("_") and fname != "bridge.py":
+                path = os.path.join(directory, fname)
+                # Use fname as mod_name but check for collisions
+                mod_name = fname[:-3]
+                mod = self._load_module(path, mod_name)
                 if mod and hasattr(mod, "metadata"):
                     try:
                         meta = mod.metadata()
@@ -31,15 +49,17 @@ class ExtensionRegistry:
                         self._extensions[meta["id"]] = mod
                     except Exception as e:
                         print(f"Failed to load extension {fname}: {e}")
-        return manifests
 
     def _load_module(self, path: str, mod_name: str):
-        spec = importlib.util.spec_from_file_location(mod_name, path)
-        if spec and spec.loader:
-            mod = importlib.util.module_from_spec(spec)
-            sys.modules[mod_name] = mod
-            spec.loader.exec_module(mod)
-            return mod
+        try:
+            spec = importlib.util.spec_from_file_location(mod_name, path)
+            if spec and spec.loader:
+                mod = importlib.util.module_from_spec(spec)
+                sys.modules[mod_name] = mod
+                spec.loader.exec_module(mod)
+                return mod
+        except Exception as e:
+            print(f"Error loading module {mod_name} from {path}: {e}")
         return None
 
     def get_extension(self, source_id: str):
@@ -74,13 +94,18 @@ class ExtensionRegistry:
 _registry: Optional[ExtensionRegistry] = None
 
 
+def initialize(user_ext_dir: Optional[str] = None):
+    """Initialize the registry with asset and optional user directories."""
+    global _registry
+    asset_dir = os.path.dirname(__file__)
+    _registry = ExtensionRegistry(asset_dir, user_ext_dir)
+    return True
+
+
 def _get_registry() -> ExtensionRegistry:
     global _registry
     if _registry is None:
-        extensions_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "..", "python_extensions"
-        )
-        _registry = ExtensionRegistry(extensions_dir)
+        initialize()
     return _registry
 
 

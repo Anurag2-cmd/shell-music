@@ -14,7 +14,7 @@ class FavoritesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Favorites'),
       ),
-      body: ValueListenableBuilder<Box<AudioEntry>>(
+      body: ValueListenableBuilder<Box<MediaEntry>>(
         valueListenable: FavoritesService().listenable,
         builder: (context, box, _) {
           final items = box.values.toList();

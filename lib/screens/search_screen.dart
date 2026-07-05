@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/source.dart';
 import '../services/extension_manager.dart';
-import '../services/python_bridge.dart';
 import '../widgets/audio_card.dart';
 import 'audio_detail_screen.dart';
 

@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/source.dart';
 import '../services/extension_manager.dart';
-import '../services/python_bridge.dart';
 
 class ExtensionsScreen extends StatefulWidget {
   const ExtensionsScreen({super.key});
@@ -23,10 +24,42 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
 
   Future<void> _init() async {
     await _extMgr.initialize();
-    setState(() {
-      _sources = _extMgr.sources;
-      _loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _sources = _extMgr.sources;
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _installNewExtension() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['py'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() => _loading = true);
+        final file = File(result.files.single.path!);
+        await _extMgr.installExtension(file);
+        await _init();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Extension installed successfully!')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to install: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -48,7 +81,10 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _sources.isEmpty
               ? const Center(
-                  child: Text('No extensions installed.\nPlace .py files in python_extensions/'),
+                  child: Text(
+                    'No extensions installed.\nTap "+" to add a .py file.',
+                    textAlign: TextAlign.center,
+                  ),
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(12),
@@ -64,12 +100,10 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
                         subtitle: Text(
                           'v${s.version}${s.lang != null ? ' · ${s.lang}' : ''}${s.description != null ? '\n${s.description}' : ''}',
                         ),
-                        trailing: Switch(
-                          value: s.isEnabled,
-                          onChanged: (v) {
-                            setState(() {
-                              _sources[i] = s.copyWith(isEnabled: v);
-                            });
+                        trailing: IconButton(
+                          icon: const Icon(Icons.info_outline),
+                          onPressed: () {
+                            // Show details or settings
                           },
                         ),
                         isThreeLine: s.description != null,
@@ -77,6 +111,10 @@ class _ExtensionsScreenState extends State<ExtensionsScreen> {
                     );
                   },
                 ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _installNewExtension,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
