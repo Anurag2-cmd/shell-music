@@ -1,0 +1,35 @@
+name: shell_music_player
+description: A modular music player shell with Python extension support.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.4.0
+  path_provider: ^2.1.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  just_audio: ^0.9.36
+  cached_network_image: ^3.3.1
+  flutter_cache_manager: ^3.3.1
+  url_launcher: ^6.2.4
+  permission_handler: ^11.3.0
+  flutter_downloader: ^1.11.6
+  provider: ^6.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.8
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - python_extensions/
